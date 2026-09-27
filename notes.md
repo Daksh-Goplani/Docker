@@ -230,7 +230,39 @@ A single host port can be bound to only one container at a time. So if port 8080
 
 ---
 
-## 8. Summary
+## 8. Docker Networks
+
+Docker networks let containers communicate with each other. Containers attached to the same user-defined bridge network can find one another by container name, so they can communicate without publishing their service ports to the host.
+
+### Common network commands
+```bash
+docker network ls
+docker network create network_name
+docker network inspect network_name
+docker network connect network_name container_name
+docker network disconnect network_name container_name
+docker network rm network_name
+```
+
+- `docker network ls` lists Docker networks.
+- `docker network create` creates a network. A user-defined bridge network is useful for connecting app containers.
+- `docker network inspect` shows the network and its connected containers.
+- `docker network connect` and `docker network disconnect` attach or detach a container from a network.
+- `docker network rm` removes a network when it is no longer in use.
+
+### Example: MongoDB and Mongo Express
+Create a shared network, then start both containers on it:
+```bash
+docker network create mongo-network
+docker run -d -p 27017:27017 --name mongo --network mongo-network -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=asdf mongo
+docker run -d -p 8081:8081 --name mongo-express --network mongo-network -e ME_CONFIG_MONGODB_ADMINUSERNAME=admin -e ME_CONFIG_MONGODB_ADMINPASSWORD=asdf -e ME_CONFIG_MONGODB_URL="mongodb://admin:asdf@mongo:27017" mongo-express
+```
+
+In this example, Mongo Express uses the hostname `mongo` to reach the MongoDB container. The `-p 8081:8081` option publishes Mongo Express to the host so it can be opened from a browser; containers only need published ports when a host or external service must access them.
+
+---
+
+## 9. Summary
 
 Docker is a tool that helps package and run applications in isolated containers. It solves environment mismatch problems and makes deployment easier and more reliable.
 
@@ -241,6 +273,7 @@ Docker is a tool that helps package and run applications in isolated containers.
 - Containers are lightweight and portable
 - Layers make images efficient and modular
 - Port binding allows access to app services from the host machine
+- Docker networks allow containers to communicate with each other
 
 ### Quick revision
 ```bash
@@ -257,7 +290,7 @@ docker rmi image_name
 
 ---
 
-## 9. Troubleshooting Commands
+## 10. Troubleshooting Commands
 
 Sometimes a container may not behave as expected. Docker provides useful commands to inspect and debug running containers.
 
@@ -283,7 +316,7 @@ This opens an interactive shell inside the running container so you can inspect 
 
 ---
 
-## 10. Docker vs Virtual Machine
+## 11. Docker vs Virtual Machine
 
 Docker and virtual machines both help isolate applications, but they work in different ways.
 
@@ -311,6 +344,6 @@ Docker Desktop is used to run Docker containers across different operating syste
 
 ---
 
-## 11. Final note
+## 12. Final note
 
 Docker allows developers to build, ship, and run applications consistently across multiple environments. It is one of the most important tools in modern software development, DevOps, and deployment workflows.
